@@ -19,7 +19,7 @@ public class SamplePageTest {
         General.setSilentMode(false);
         try {
 
-            startPage = new WebPage( null, LoginType.SAMPLE, WebPage.Browser.Firefox );
+            startPage = new WebPage( null, LoginType.SAMPLE_MOVIEDB, WebPage.Browser.Firefox );
             startPage.ExercisePage( true );
             startPage.ExecuteRandomMethods( 20 );
 

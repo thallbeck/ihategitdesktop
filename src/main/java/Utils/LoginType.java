@@ -14,7 +14,7 @@ import java.util.TreeMap;
 
 public enum LoginType {
 
-    SAMPLE(
+    SAMPLE_MOVIEDB(
         "",
         Environment.Prod,
         "",
@@ -23,6 +23,17 @@ public enum LoginType {
         "",
         "",
         "http://www.themoviedb.org"
+    ),
+
+    SAMPLE_CARBONBLACK(
+        "",
+        Environment.Prod,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "https://www.carbonblack.com"
     ),
 
     JIRA_HOMEPAGE(
@@ -91,7 +102,7 @@ public enum LoginType {
     }
 
     static public LoginType GetSystemDefault() {
-        return LoginType.SAMPLE;
+        return LoginType.SAMPLE_MOVIEDB;
     }
 
     public String getUrlPrefix() {
