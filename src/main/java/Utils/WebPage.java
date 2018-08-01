@@ -750,6 +750,32 @@ public class WebPage extends Page {
 
     }
 
+    public WebPage CreatePageClasses(TreeMap map, String startingUrl, General.SOURCE_LANGUAGE language) {
+
+        TreeMap childTreeMap = null;
+        Set<String> urlSet = map.keySet();
+
+        for( String url : urlSet ) {
+            childTreeMap = (TreeMap) map.get( url );
+            System.out.println("Value of " + url + " is: " + childTreeMap );
+            CreatePageClass( url, startingUrl );
+
+            // Recursion is a wonderful thing
+            if (childTreeMap != null)
+                CreatePageClasses(childTreeMap, startingUrl, language);
+        }
+
+        return this;
+    }
+
+    public WebPage CreatePageClass( String url, String startingUrl ) {
+        String className = "";
+
+        System.out.println("Creating class " + className );
+
+        return this;
+    }
+
     public WebPage showPageLoadTimes( boolean flag ) {
         this.bShowPageLoadTimes = flag;
         return this;

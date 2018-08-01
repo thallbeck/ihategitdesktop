@@ -2,10 +2,12 @@
  * Created on 7/26/2018.
  */
 
+import Utils.General;
 import Utils.LoginType;
 import Utils.WebPage;
 import org.testng.annotations.Test;
 
+import java.util.NavigableSet;
 import java.util.TreeMap;
 
 
@@ -13,6 +15,8 @@ public class SampleSiteCrawler {
 
     private String[] inclusionFilterArray = new String[] {
         "https://www.carbonblack.com",
+        "https://partners.carbonblack.com",
+        "https://community.carbonblack.com"
     };
 
     @Test
@@ -25,7 +29,10 @@ public class SampleSiteCrawler {
 
             startPage = new WebPage( null, LoginType.SAMPLE_CARBONBLACK, WebPage.Browser.Firefox );
             startPage.load();
-            startPage.DocumentAllHrefs(masterMap, 2, startingUrl, inclusionFilterArray);
+            startPage.DocumentAllHrefs(masterMap, 1, startingUrl, inclusionFilterArray);
+            startPage.CreatePageClasses(masterMap, startingUrl, General.SOURCE_LANGUAGE.Java);
+            NavigableSet mySet = masterMap.navigableKeySet();
+            int size = masterMap.size();
 
         } catch (Exception e) {
 

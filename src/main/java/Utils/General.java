@@ -23,11 +23,10 @@ public class General {
     // Global data objects
     private static boolean silentMode = false;
     private static boolean detailedDebugMode = false;
-    private static int initialStackDepth;
+    private static int initialStackDepth=1;
     private static Random randomGenerator = new Random( System.currentTimeMillis() );
 
     public static String DATA_PATH = "/Users/Public/Documents/testautomation/";
-    public static WebPage.Browser DEFAULT_BROWSER = WebPage.Browser.Firefox;
 
     General() {
         initialStackDepth = Thread.currentThread().getStackTrace().length;
@@ -58,9 +57,9 @@ public class General {
         return Integer.max( Thread.currentThread().getStackTrace().length - initialStackDepth - 30, 1 );
     }
 
-    static int cursorPos = 0;
+    /*static int cursorPos = 0;
 
-    /*    static public void MarkOutputCursor() {
+        static public void MarkOutputCursor() {
             if (outputWindow != null)
                 cursorPos = outputWindow.getLength();
         }
@@ -200,6 +199,8 @@ public class General {
     }
 
     public enum OS {Mac, Windows, Linux}
+
+    public enum SOURCE_LANGUAGE {Java, Python}
 
     static public OS getOS() {
         String uAgent = System.getProperty( "os.name" );
