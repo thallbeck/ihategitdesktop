@@ -750,7 +750,7 @@ public class WebPage extends Page {
 
     }
 
-    public WebPage CreatePageClasses(TreeMap map, String startingUrl, General.SOURCE_LANGUAGE language) {
+    public WebPage CreatePageClasses(TreeMap map, String startingUrl, General.SOURCE_LANGUAGE language ) {
 
         TreeMap childTreeMap = null;
         Set<String> urlSet = map.keySet();
@@ -758,22 +758,39 @@ public class WebPage extends Page {
         for( String url : urlSet ) {
             childTreeMap = (TreeMap) map.get( url );
             System.out.println("Value of " + url + " is: " + childTreeMap );
-            CreatePageClass( url, startingUrl );
+            String filename = CreateSinglePageClass( url, startingUrl, language );
 
             // Recursion is a wonderful thing
-            if (childTreeMap != null)
+            if (childTreeMap.size() != 0)
                 CreatePageClasses(childTreeMap, startingUrl, language);
         }
 
         return this;
     }
 
-    public WebPage CreatePageClass( String url, String startingUrl ) {
-        String className = "";
+    public String CreateSinglePageClass( String url, String startingUrl, General.SOURCE_LANGUAGE language ) {
+        // remove transport type
+        startingUrl = startingUrl.replace("https://","");
+        startingUrl = startingUrl.replace("http://","");
+        url = url.replace("https://","");
+        url = url.replace("http://","");
 
-        System.out.println("Creating class " + className );
+        // remove starting url
+        url = url.replace(startingUrl,"");
 
-        return this;
+        // remove leading slash
+        if (url.indexOf( '/' ) == 0)
+            url = url.substring(1);
+
+        // change remaining slashes to underscores
+        url = url.replace("/","_");
+
+        // change any dashes to underscores
+        url = url.replace("-","_");
+
+        System.out.println("Creating class " + url );
+
+        return url;
     }
 
     public WebPage showPageLoadTimes( boolean flag ) {
