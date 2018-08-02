@@ -11,10 +11,14 @@ import org.openqa.selenium.html5.WebStorage;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.testng.Assert;
+import org.testng.TestNGException;
 
 import java.awt.Dimension;
 import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -635,7 +639,7 @@ public class WebPage extends Page {
 
         map.put( startingUrl, new TreeMap() );
         for ( int counter = 1; counter <= depth; counter++ ) {
-            General.Debug( " Starting page level " + counter );
+            General.Debug( "  ------ Starting page level " + counter + " ------" );
             Object[] array = map.keySet().toArray();
             for ( Object object : array ) {
                 try {
@@ -646,7 +650,11 @@ public class WebPage extends Page {
                         PowerPointUtil.saveScreenshot( this, key );
 
                         checkForDuplicateUris();
+
+                        // The top level map has all the other maps combined. This is to avoid duplicates regardless of level
                         StringUtils.addMapToMap( map, ( TreeMap ) map.get( key ) );
+
+                        // Therefore the top level map always has an accurate total of all other levels
                         General.Debug( " Total urls: " + map.size() );
                     }
                 } catch ( Exception e ) {
@@ -747,36 +755,85 @@ public class WebPage extends Page {
         for ( Map.Entry<String, Integer> entry : sortedCounts.entrySet() )
             if ( entry.getValue() != 1 )
                 PowerPointUtil.addBulletPoint( " (" + entry.getKey() + ", " + entry.getValue() + ")" );
-
     }
 
-    public WebPage CreatePageClasses(TreeMap map, String startingUrl, General.SOURCE_LANGUAGE language ) {
+    public WebPage CreatePageClasses( TreeMap map, String startingUrl, General.SOURCE_LANGUAGE language ) {
 
-        TreeMap childTreeMap = null;
-        Set<String> urlSet = map.keySet();
+        TreeMap childTreeMap = (TreeMap) map.get( startingUrl );
+        assert(childTreeMap != null);
+        String className = convertUrlToHomePageClassName( startingUrl );
 
-        for( String url : urlSet ) {
-            childTreeMap = (TreeMap) map.get( url );
-            System.out.println("Value of " + url + " is: " + childTreeMap );
-            String filename = CreateSinglePageClass( url, startingUrl, language );
-
-            // Recursion is a wonderful thing
-            if (childTreeMap.size() != 0)
-                CreatePageClasses(childTreeMap, startingUrl, language);
-        }
+        CreatePageClass( className, childTreeMap, null, language );
 
         return this;
     }
 
-    public String CreateSinglePageClass( String url, String startingUrl, General.SOURCE_LANGUAGE language ) {
+    public String CreatePageClass( String className, TreeMap childMap, String parentClassName, General.SOURCE_LANGUAGE language ) {
+
+        Set<String> urlSet = childMap.keySet();
+        PrintWriter writer = null;
+        String extension;
+
+        if (language == General.SOURCE_LANGUAGE.Java )
+            extension = ".java";
+        else
+            extension = ".py";
+
+        try {
+            writer = new PrintWriter( "c:\\projects\\newfiles\\" + className + extension, "UTF-8" );
+        } catch ( java.io.FileNotFoundException | java.io.UnsupportedEncodingException e ) {
+            throw new TestNGException( "Could not create output file" );
+        }
+
+//        WriteImports();
+        writer.println( "import Utils.General;\n" );
+        writer.println( "import Utils.LoginType;\n" );
+        writer.println( "import Utils.WebPage;\n" );
+        writer.println( "\n" );
+
+        //        WriteClassHeader();
+        writer.print( "public class " + className );
+        if ( parentClassName != null )
+            writer.println( "extends " + parentClassName );
+        writer.println( "{");
+        writer.println( "");
+
+        //        WriteClickLinks();
+        writer.println( "    public " + className + " click_thisthing() {" );
+        writer.println( "        return this;" );
+        writer.println( "    }" );
+        writer.println( "" );
+
+//        WriteRandomActions();
+        writer.println( "    public " + className + " AddRandomActions() {" );
+        writer.println( "        return this;" );
+        writer.println( "    }" );
+        writer.println( "" );
+
+//        WriteExercisePage();
+        writer.println( "    public " + className + " ExercisePage( boolean recursive ) {" );
+        writer.println( "        if ( recursive )" );
+        writer.println( "            ;" );
+        writer.println( "        else" );
+        writer.println( "            ;" );
+        writer.println( "" );
+        writer.println( "        return this;" );
+        writer.println( "    }" );
+        writer.println( "" );
+
+//        WriteClassFooter();
+        writer.println( "}" );
+
+        writer.close();
+
+        return className;
+    }
+
+    public String convertUrlToPageClassName( String url ) {
+
         // remove transport type
-        startingUrl = startingUrl.replace("https://","");
-        startingUrl = startingUrl.replace("http://","");
         url = url.replace("https://","");
         url = url.replace("http://","");
-
-        // remove starting url
-        url = url.replace(startingUrl,"");
 
         // remove leading slash
         if (url.indexOf( '/' ) == 0)
@@ -788,9 +845,24 @@ public class WebPage extends Page {
         // change any dashes to underscores
         url = url.replace("-","_");
 
-        System.out.println("Creating class " + url );
+        // change any dots to underscores
+        url = url.replace(".","_");
 
         return url;
+    }
+
+    public String convertUrlToHomePageClassName( String url ) {
+
+        // Handle both http and https cases
+        String homePage = url.replace("https://","");
+        homePage = homePage.replace("http://","");
+
+        // Get rid of any prefix
+        homePage = homePage.replace("www.","");
+
+        // Leave the suffix intact
+        homePage = homePage.replace(".","_");
+        return homePage;
     }
 
     public WebPage showPageLoadTimes( boolean flag ) {

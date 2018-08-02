@@ -29,8 +29,8 @@ public class SampleSiteCrawler {
 
             startPage = new WebPage( null, LoginType.SAMPLE_CARBONBLACK, WebPage.Browser.Firefox );
             startPage.load();
-            startPage.DocumentAllHrefs(masterMap, 1, startingUrl, inclusionFilterArray);
-            startPage.CreatePageClasses(masterMap, startingUrl, General.SOURCE_LANGUAGE.Java);
+            startPage.DocumentAllHrefs( masterMap, 1, startingUrl, inclusionFilterArray );
+            startPage.CreatePageClasses( masterMap, startingUrl, General.SOURCE_LANGUAGE.Java );
             NavigableSet mySet = masterMap.navigableKeySet();
             int size = masterMap.size();
 
