@@ -7,6 +7,7 @@ import Utils.LoginType;
 import Utils.WebPage;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
 
@@ -22,7 +23,7 @@ public class SampleSiteCrawler {
     @Test
     public void CarbonBlackCrawler() throws Exception {
         String startingUrl = "https://www.carbonblack.com";
-        TreeMap masterMap   = new TreeMap();
+        HashMap masterMap   = new HashMap();
         WebPage startPage = null;
 
         try {
@@ -32,7 +33,6 @@ public class SampleSiteCrawler {
             startPage.DocumentAllHrefs( masterMap, 1, startingUrl, inclusionFilterArray );
             startPage.CreatePageClasses( masterMap, startingUrl, General.SOURCE_LANGUAGE.Java );
             startPage.CreatePageClasses( masterMap, startingUrl, General.SOURCE_LANGUAGE.Python );
-            NavigableSet mySet = masterMap.navigableKeySet();
             int size = masterMap.size();
 
         } catch (Exception e) {

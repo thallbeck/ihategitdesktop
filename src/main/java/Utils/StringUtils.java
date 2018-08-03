@@ -1,6 +1,7 @@
 
 package Utils;
 
+import java.util.HashMap;
 import java.util.TreeMap;
 
 /*
@@ -38,13 +39,13 @@ public class StringUtils {
         return filename;
     }
 
-    static public void addMapToMap( TreeMap destMap, TreeMap sourceMap ) {
+    static public void addMapToMap( HashMap destMap, HashMap sourceMap ) {
         Object[] array = sourceMap.keySet().toArray();
 
         for ( Object object : array ) {
             String value = object.toString();
             if ( !destMap.containsKey( value ) ) {
-                destMap.put( value, new TreeMap() );
+                destMap.put( value, new HashMap() );
                 General.Debug( "Adding to master: " + value );
             }
         }

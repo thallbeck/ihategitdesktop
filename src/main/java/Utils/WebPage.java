@@ -11,14 +11,11 @@ import org.openqa.selenium.html5.WebStorage;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.testng.Assert;
-import org.testng.TestNGException;
 
 import java.awt.Dimension;
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +59,8 @@ public class WebPage extends Page {
             if ( browser != null )
 
                 this.browser = existingPage.browser;
-        } else {
+        }
+        else {
 
             this.loginType = loginType;
             this.browser = browser;
@@ -577,11 +575,11 @@ public class WebPage extends Page {
         int classCount = AllPageClasses.size();
         General.Debug( "class count: " + classCount + "  random methods to invoke: " + count );
 
-        // duplicate classname treemap, and eliminate those with no associated methods
+        // duplicate classname hashmap, and eliminate those with no associated methods
         HashMap<WebPage, HashMap<String, Object>> copyOfPageClasses = new HashMap<>();
         HashMap<String, Object> methodMap;
 
-        // dupe the class treemaps that have methods
+        // dupe the class hashmap that have methods
         for ( int i = 0; i < classCount; i++ ) {
             WebPage key = ( WebPage ) AllPageClasses.keySet().toArray()[ i ];
 
@@ -632,19 +630,19 @@ public class WebPage extends Page {
         }
     }
 
-    public void DocumentAllHrefs( TreeMap map, int depth, String startingUrl, String[] inclusionFilter ) {
+    public void DocumentAllHrefs( HashMap map, int depth, String startingUrl, String[] inclusionFilter ) {
         driver.manage().timeouts().implicitlyWait( 2, TimeUnit.SECONDS );
         driver.manage().timeouts().pageLoadTimeout( 6, TimeUnit.SECONDS );
         driver.manage().timeouts().setScriptTimeout( 2, TimeUnit.SECONDS );
 
-        map.put( startingUrl, new TreeMap() );
+        map.put( startingUrl, new HashMap() );
         for ( int counter = 1; counter <= depth; counter++ ) {
             General.Debug( "  ------ Starting page level " + counter + " ------" );
             Object[] array = map.keySet().toArray();
             for ( Object object : array ) {
                 try {
                     String key = object.toString();
-                    if ( (( TreeMap ) map.get( key )).size() == 0 ) {
+                    if ( (( HashMap ) map.get( key )).size() == 0 ) {
                         get( key, 2000 );
                         map.put( key, getAllHrefsOnAPage( startingUrl, inclusionFilter ) );
                         PowerPointUtil.saveScreenshot( this, key );
@@ -652,7 +650,7 @@ public class WebPage extends Page {
                         checkForDuplicateUris();
 
                         // The top level map has all the other maps combined. This is to avoid duplicates regardless of level
-                        StringUtils.addMapToMap( map, ( TreeMap ) map.get( key ) );
+                        StringUtils.addMapToMap( map, ( HashMap ) map.get( key ) );
 
                         // Therefore the top level map always has an accurate total of all other levels
                         General.Debug( " Total urls: " + map.size() );
@@ -666,11 +664,11 @@ public class WebPage extends Page {
         }
     }
 
-    private TreeMap getAllHrefsOnAPage( String startingUrl, String[] inclusionFilterArray ) {
+    private HashMap getAllHrefsOnAPage( String startingUrl, String[] inclusionFilterArray ) {
         General.Debug( getClassName() + "::getAllHrefsOnAPage" );
         List<WebElement> listHref;
         List<String> hrefs = new ArrayList<>();
-        TreeMap mapUrls = new TreeMap();
+        HashMap mapUrls = new HashMap();
         String href;
 
         int frameCount = CountFrames(), i = 0;
@@ -724,7 +722,7 @@ public class WebPage extends Page {
 
         // If there are no links on the page, add empty string
         if ( mapUrls.size() == 0 )
-            mapUrls.put( startingUrl, new TreeMap() );
+            mapUrls.put( startingUrl, new HashMap() );
 
         return mapUrls;
     }
@@ -736,8 +734,8 @@ public class WebPage extends Page {
 //        General.Debug("urls and counts: ");
         int nameIndex = 0, endIndex, maxUrls = 200;
         String name;
-        TreeMap<String, Integer> sortedCounts;
-        sortedCounts = new TreeMap<>();
+        HashMap<String, Integer> sortedCounts;
+        sortedCounts = new HashMap<>();
 
         while ( maxUrls-- > 0 ) {
             if ( (nameIndex = netData.indexOf( "name=" )) == -1 )
@@ -757,45 +755,29 @@ public class WebPage extends Page {
                 PowerPointUtil.addBulletPoint( " (" + entry.getKey() + ", " + entry.getValue() + ")" );
     }
 
-    public WebPage CreatePageClasses( TreeMap map, String startingUrl, General.SOURCE_LANGUAGE language ) {
+    public WebPage CreatePageClasses( HashMap map, String startingUrl, General.SOURCE_LANGUAGE language ) {
 
-        TreeMap childTreeMap = (TreeMap) map.get( startingUrl );
-        assert(childTreeMap != null);
+        HashMap childHashMap = ( HashMap ) map.get( startingUrl );
+        assert (childHashMap != null);
         String className = convertUrlToHomePageClassName( startingUrl );
 
-        CreatePageClass( className, childTreeMap, null, language );
+        CreatePageClass( className, childHashMap, null, language );
 
         return this;
     }
 
-    public void WriteClickMethods( PrintWriter writer, String className, TreeMap childMap, General.SOURCE_LANGUAGE language ) {
-
-        Set<String> urlSet = childMap.keySet();
-
-        switch (language) {
-            case Python:
-                writer.println( "" );
-                break;
-
-            case Java:
-            default:
-                writer.println( "" );
-                break;
-        }
-    }
-
-/*        writer.println( "    public " + className + " click_thisthing() {" );
-        writer.println( "        return this;" );
-        writer.println( "    }" );
-        writer.println( "" );
-*/
-    public String CreatePageClass( String className, TreeMap childMap, String parentClassName, General.SOURCE_LANGUAGE language ) {
+    /*        writer.println( "    public " + className + " click_thisthing() {" );
+            writer.println( "        return this;" );
+            writer.println( "    }" );
+            writer.println( "" );
+    */
+    public String CreatePageClass( String className, HashMap childMap, String parentClassName, General.SOURCE_LANGUAGE language ) {
 
         PrintWriter writer = General.CreateOutputFile( className, language );
 
         WriteImports( writer, language );
         WriteClassHeader( writer, className, parentClassName, language );
-        WriteClickMethods( writer, className, childMap, language );
+        WriteSimpleGetMethods( writer, className, childMap, language );
         WriteRandomActions( writer, className, childMap, language );
         WriteExercisePage( writer, className, childMap, language );
         WriteClassFooter( writer, language );
@@ -806,13 +788,14 @@ public class WebPage extends Page {
     }
 
     public void WriteImports( PrintWriter writer, General.SOURCE_LANGUAGE language ) {
-        switch (language) {
+        switch ( language ) {
             case Python:
                 writer.println( "from selenium import webdriver" );
                 writer.println( "from selenium.webdriver.firefox.firefox_binary import FirefoxBinary" );
                 writer.println( "" );
                 writer.println( "import general" );
                 writer.println( "import logintype" );
+                writer.println( "import page" );
                 writer.println( "" );
                 break;
 
@@ -827,11 +810,14 @@ public class WebPage extends Page {
     }
 
     public void WriteClassHeader( PrintWriter writer, String className, String parentClassName, General.SOURCE_LANGUAGE language ) {
-        switch (language) {
+        switch ( language ) {
             case Python:
                 writer.print( "class " + className );
                 if ( parentClassName != null )
-                    writer.print( "(" + parentClassName + ")" );
+                    writer.print( " ( " + parentClassName + " )" );
+                else
+                    writer.print( " ( page )" );
+
                 writer.println( ":" );
                 writer.println( "" );
                 writer.println( "    def __init__(self):" );
@@ -845,22 +831,54 @@ public class WebPage extends Page {
             default:
                 writer.print( "public class " + className );
                 if ( parentClassName != null )
-                    writer.println( "extends " + parentClassName );
-                writer.println( "{" );
+                    writer.println( " extends " + parentClassName + " {" );
+                else
+                    writer.println( " extends WebPage {" );
+
                 writer.println( "" );
                 writer.println( "    public " + className + "(WebPage existingPage) {" );
                 writer.println( "        super(existingPage);" );
                 writer.println( "    }" );
 
-            break;
+                break;
         }
     }
 
-    public void WriteRandomActions( PrintWriter writer, String className, TreeMap childMap, General.SOURCE_LANGUAGE language ) {
+    public void WriteSimpleGetMethods( PrintWriter writer, String className, HashMap childMap, General.SOURCE_LANGUAGE language ) {
+
+        Map.Entry keyValuePair;
+        String methodName = "";
+        Iterator worker = childMap.entrySet().iterator();
+
+        while ( worker.hasNext() ) {
+            keyValuePair = (Map.Entry) worker.next();
+            methodName = convertUrlToPageClassName( (String) keyValuePair.getKey() );
+
+            switch ( language ) {
+                case Python:
+                    writer.println( "" );
+                    writer.println( "    def get_" + methodName + "(self):" );
+                    writer.println( "        get( \"" + ((String) keyValuePair.getKey()) + "\" )" );
+                    break;
+
+                case Java:
+                default:
+                    writer.println( "" );
+                    writer.println( "    public " + className + " get_" + methodName + "() {" );
+                    writer.println( "        get( \"" + ((String) keyValuePair.getKey()) + "\" );" );
+                    writer.println( "        return this;" );
+                    writer.println( "    }" );
+                    break;
+            }
+
+        }
+    }
+
+    public void WriteRandomActions( PrintWriter writer, String className, HashMap childMap, General.SOURCE_LANGUAGE language ) {
 
         Set<String> urlSet = childMap.keySet();
 
-        switch (language) {
+        switch ( language ) {
             case Python:
                 writer.println( "    def AddRandomActions(self):" );
                 writer.println( "        placeholder = 1" );
@@ -873,24 +891,25 @@ public class WebPage extends Page {
                 writer.println( "        int placeholder = 1;" );
                 writer.println( "        return this;" );
                 writer.println( "    }" );
+                writer.println( "" );
                 break;
         }
     }
 
-    public void WriteExercisePage( PrintWriter writer, String className, TreeMap childMap, General.SOURCE_LANGUAGE language ) {
+    public void WriteExercisePage( PrintWriter writer, String className, HashMap childMap, General.SOURCE_LANGUAGE language ) {
 
         Set<String> urlSet = childMap.keySet();
 
-        switch (language) {
+        switch ( language ) {
             case Python:
-                writer.println( "    def ExercisePage(self):" );
+                writer.println( "    def ExercisePage(self, cascade):" );
                 writer.println( "        load()" );
                 writer.println( "" );
                 break;
 
             case Java:
             default:
-                writer.println( "    public " + className + " ExercisePage() {" );
+                writer.println( "    public " + className + " ExercisePage( boolean cascade ) {" );
                 writer.println( "" );
                 writer.println( "        load();" );
                 writer.println( "" );
@@ -906,7 +925,7 @@ public class WebPage extends Page {
     }
 
     public void WriteClassFooter( PrintWriter writer, General.SOURCE_LANGUAGE language ) {
-        switch (language) {
+        switch ( language ) {
             case Python:
                 writer.println( "" );
                 break;
@@ -922,21 +941,21 @@ public class WebPage extends Page {
     public String convertUrlToPageClassName( String url ) {
 
         // remove transport type
-        url = url.replace("https://","");
-        url = url.replace("http://","");
+        url = url.replace( "https://", "" );
+        url = url.replace( "http://", "" );
 
         // remove leading slash
-        if (url.indexOf( '/' ) == 0)
-            url = url.substring(1);
+        if ( url.indexOf( '/' ) == 0 )
+            url = url.substring( 1 );
 
-        // change remaining slashes to underscores
-        url = url.replace("/","_");
-
-        // change any dashes to underscores
-        url = url.replace("-","_");
-
-        // change any dots to underscores
-        url = url.replace(".","_");
+        // change remaining slashes, question marks, percent signs, equal signs, etc to underscores
+        url = url.replace( "/", "_" );
+        url = url.replace( "?", "_" );
+        url = url.replace( "%", "_" );
+        url = url.replace( "&", "_" );
+        url = url.replace( "=", "_" );
+        url = url.replace( "-", "_" );
+        url = url.replace( ".", "_" );
 
         return url;
     }
@@ -944,14 +963,14 @@ public class WebPage extends Page {
     public String convertUrlToHomePageClassName( String url ) {
 
         // Handle both http and https cases
-        String homePage = url.replace("https://","");
-        homePage = homePage.replace("http://","");
+        String homePage = url.replace( "https://", "" );
+        homePage = homePage.replace( "http://", "" );
 
         // Get rid of any prefix
-        homePage = homePage.replace("www.","");
+        homePage = homePage.replace( "www.", "" );
 
         // Leave the suffix intact
-        homePage = homePage.replace(".","_");
+        homePage = homePage.replace( ".", "_" );
         return homePage;
     }
 
