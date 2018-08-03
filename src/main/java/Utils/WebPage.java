@@ -44,6 +44,8 @@ public class WebPage extends Page {
     public String PAGE_VERIFIER = "";
     public Browser browser;
     protected HashMap<Object, HashMap<String, Object>> AllPageClasses = new HashMap<>();
+    HashMap listOfMethods = new HashMap <String, Object> ();
+
 
     public WebPage( WebPage existingPage ) {
         this( existingPage, null, null );
@@ -853,12 +855,13 @@ public class WebPage extends Page {
         while ( worker.hasNext() ) {
             keyValuePair = (Map.Entry) worker.next();
             methodName = convertUrlToPageClassName( (String) keyValuePair.getKey() );
+            listOfMethods.put( "get_" + methodName, null );
 
             switch ( language ) {
                 case Python:
                     writer.println( "" );
                     writer.println( "    def get_" + methodName + "(self):" );
-                    writer.println( "        get( \"" + ((String) keyValuePair.getKey()) + "\" )" );
+                    writer.println( "        self.get( \"" + ((String) keyValuePair.getKey()) + "\" )" );
                     break;
 
                 case Java:
@@ -875,8 +878,6 @@ public class WebPage extends Page {
     }
 
     public void WriteRandomActions( PrintWriter writer, String className, HashMap childMap, General.SOURCE_LANGUAGE language ) {
-
-        Set<String> urlSet = childMap.keySet();
 
         switch ( language ) {
             case Python:
@@ -898,13 +899,19 @@ public class WebPage extends Page {
 
     public void WriteExercisePage( PrintWriter writer, String className, HashMap childMap, General.SOURCE_LANGUAGE language ) {
 
-        Set<String> urlSet = childMap.keySet();
+        Iterator worker = listOfMethods.entrySet().iterator();
+        Map.Entry keyValuePair = (Map.Entry) worker.next();
 
         switch ( language ) {
             case Python:
                 writer.println( "    def ExercisePage(self, cascade):" );
-                writer.println( "        load()" );
+                writer.println( "        self.load()" );
                 writer.println( "" );
+
+                while ( worker.hasNext() ) {
+                    keyValuePair = ( Map.Entry ) worker.next();
+                    writer.println( "        self."  + keyValuePair.getKey() + "()");
+                }
                 break;
 
             case Java:
@@ -914,8 +921,15 @@ public class WebPage extends Page {
                 writer.println( "        load();" );
                 writer.println( "" );
                 writer.println( "        if (cascade) {" );
+                writer.println( "            // when page subclasses exist they will unstantiated and used here" );
                 writer.println( "            return this;" );
                 writer.println( "        }" );
+                writer.println( "" );
+
+                while ( worker.hasNext() ) {
+                    keyValuePair = ( Map.Entry ) worker.next();
+                    writer.println( "        "  + keyValuePair.getKey() + "();");
+                }
                 writer.println( "" );
                 writer.println( "        return this;" );
                 writer.println( "    }" );
