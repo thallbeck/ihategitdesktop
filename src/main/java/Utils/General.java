@@ -2,10 +2,12 @@
 package Utils;
 
 import org.testng.SkipException;
+import org.testng.TestNGException;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -198,9 +200,35 @@ public class General {
         }
     }
 
-    public enum OS {Mac, Windows, Linux}
-
     public enum SOURCE_LANGUAGE {Java, Python}
+
+    static public PrintWriter CreateOutputFile( String className, SOURCE_LANGUAGE language ) {
+
+        PrintWriter writer = null;
+        String extension;
+
+        switch (language) {
+            case Python:
+                extension = ".py";
+                break;
+
+            case Java:
+            default:
+                extension = ".java";
+                break;
+        }
+
+        try {
+            writer = new PrintWriter( DATA_PATH + className + extension, "UTF-8" );
+        } catch ( java.io.FileNotFoundException | java.io.UnsupportedEncodingException e ) {
+            throw new TestNGException( "Could not create output file" );
+        }
+
+        return writer;
+
+    }
+
+    public enum OS {Mac, Windows, Linux}
 
     static public OS getOS() {
         String uAgent = System.getProperty( "os.name" );

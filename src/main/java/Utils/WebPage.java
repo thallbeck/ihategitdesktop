@@ -768,65 +768,155 @@ public class WebPage extends Page {
         return this;
     }
 
-    public String CreatePageClass( String className, TreeMap childMap, String parentClassName, General.SOURCE_LANGUAGE language ) {
+    public void WriteClickMethods( PrintWriter writer, String className, TreeMap childMap, General.SOURCE_LANGUAGE language ) {
 
         Set<String> urlSet = childMap.keySet();
-        PrintWriter writer = null;
-        String extension;
 
-        if (language == General.SOURCE_LANGUAGE.Java )
-            extension = ".java";
-        else
-            extension = ".py";
+        switch (language) {
+            case Python:
+                writer.println( "" );
+                break;
 
-        try {
-            writer = new PrintWriter( "c:\\projects\\newfiles\\" + className + extension, "UTF-8" );
-        } catch ( java.io.FileNotFoundException | java.io.UnsupportedEncodingException e ) {
-            throw new TestNGException( "Could not create output file" );
+            case Java:
+            default:
+                writer.println( "" );
+                break;
         }
+    }
 
-//        WriteImports();
-        writer.println( "import Utils.General;\n" );
-        writer.println( "import Utils.LoginType;\n" );
-        writer.println( "import Utils.WebPage;\n" );
-        writer.println( "\n" );
-
-        //        WriteClassHeader();
-        writer.print( "public class " + className );
-        if ( parentClassName != null )
-            writer.println( "extends " + parentClassName );
-        writer.println( "{");
-        writer.println( "");
-
-        //        WriteClickLinks();
-        writer.println( "    public " + className + " click_thisthing() {" );
+/*        writer.println( "    public " + className + " click_thisthing() {" );
         writer.println( "        return this;" );
         writer.println( "    }" );
         writer.println( "" );
+*/
+    public String CreatePageClass( String className, TreeMap childMap, String parentClassName, General.SOURCE_LANGUAGE language ) {
 
-//        WriteRandomActions();
-        writer.println( "    public " + className + " AddRandomActions() {" );
-        writer.println( "        return this;" );
-        writer.println( "    }" );
-        writer.println( "" );
+        PrintWriter writer = General.CreateOutputFile( className, language );
 
-//        WriteExercisePage();
-        writer.println( "    public " + className + " ExercisePage( boolean recursive ) {" );
-        writer.println( "        if ( recursive )" );
-        writer.println( "            ;" );
-        writer.println( "        else" );
-        writer.println( "            ;" );
-        writer.println( "" );
-        writer.println( "        return this;" );
-        writer.println( "    }" );
-        writer.println( "" );
-
-//        WriteClassFooter();
-        writer.println( "}" );
+        WriteImports( writer, language );
+        WriteClassHeader( writer, className, parentClassName, language );
+        WriteClickMethods( writer, className, childMap, language );
+        WriteRandomActions( writer, className, childMap, language );
+        WriteExercisePage( writer, className, childMap, language );
+        WriteClassFooter( writer, language );
 
         writer.close();
 
         return className;
+    }
+
+    public void WriteImports( PrintWriter writer, General.SOURCE_LANGUAGE language ) {
+        switch (language) {
+            case Python:
+                writer.println( "from selenium import webdriver" );
+                writer.println( "from selenium.webdriver.firefox.firefox_binary import FirefoxBinary" );
+                writer.println( "" );
+                writer.println( "import general" );
+                writer.println( "import logintype" );
+                writer.println( "" );
+                break;
+
+            case Java:
+            default:
+                writer.println( "import Utils.General;" );
+                writer.println( "import Utils.LoginType;" );
+                writer.println( "import Utils.WebPage;" );
+                writer.println( "" );
+                break;
+        }
+    }
+
+    public void WriteClassHeader( PrintWriter writer, String className, String parentClassName, General.SOURCE_LANGUAGE language ) {
+        switch (language) {
+            case Python:
+                writer.print( "class " + className );
+                if ( parentClassName != null )
+                    writer.print( "(" + parentClassName + ")" );
+                writer.println( ":" );
+                writer.println( "" );
+                writer.println( "    def __init__(self):" );
+                writer.println( "        super(self).__init()" );
+                writer.println( "" );
+                writer.println( "    def load(self):" );
+                writer.println( "        super(self).load()" );
+                break;
+
+            case Java:
+            default:
+                writer.print( "public class " + className );
+                if ( parentClassName != null )
+                    writer.println( "extends " + parentClassName );
+                writer.println( "{" );
+                writer.println( "" );
+                writer.println( "    public " + className + "(WebPage existingPage) {" );
+                writer.println( "        super(existingPage);" );
+                writer.println( "    }" );
+
+            break;
+        }
+    }
+
+    public void WriteRandomActions( PrintWriter writer, String className, TreeMap childMap, General.SOURCE_LANGUAGE language ) {
+
+        Set<String> urlSet = childMap.keySet();
+
+        switch (language) {
+            case Python:
+                writer.println( "    def AddRandomActions(self):" );
+                writer.println( "        placeholder = 1" );
+                writer.println( "" );
+                break;
+
+            case Java:
+            default:
+                writer.println( "    public " + className + " AddRandomActions() {" );
+                writer.println( "        int placeholder = 1;" );
+                writer.println( "        return this;" );
+                writer.println( "    }" );
+                break;
+        }
+    }
+
+    public void WriteExercisePage( PrintWriter writer, String className, TreeMap childMap, General.SOURCE_LANGUAGE language ) {
+
+        Set<String> urlSet = childMap.keySet();
+
+        switch (language) {
+            case Python:
+                writer.println( "    def ExercisePage(self):" );
+                writer.println( "        load()" );
+                writer.println( "" );
+                break;
+
+            case Java:
+            default:
+                writer.println( "    public " + className + " ExercisePage() {" );
+                writer.println( "" );
+                writer.println( "        load();" );
+                writer.println( "" );
+                writer.println( "        if (cascade) {" );
+                writer.println( "            return this;" );
+                writer.println( "        }" );
+                writer.println( "" );
+                writer.println( "        return this;" );
+                writer.println( "    }" );
+                writer.println( "" );
+                break;
+        }
+    }
+
+    public void WriteClassFooter( PrintWriter writer, General.SOURCE_LANGUAGE language ) {
+        switch (language) {
+            case Python:
+                writer.println( "" );
+                break;
+
+            case Java:
+            default:
+                writer.println( "}" );
+                writer.println( "" );
+                break;
+        }
     }
 
     public String convertUrlToPageClassName( String url ) {

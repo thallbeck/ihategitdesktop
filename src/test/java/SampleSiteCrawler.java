@@ -31,6 +31,7 @@ public class SampleSiteCrawler {
             startPage.load();
             startPage.DocumentAllHrefs( masterMap, 1, startingUrl, inclusionFilterArray );
             startPage.CreatePageClasses( masterMap, startingUrl, General.SOURCE_LANGUAGE.Java );
+            startPage.CreatePageClasses( masterMap, startingUrl, General.SOURCE_LANGUAGE.Python );
             NavigableSet mySet = masterMap.navigableKeySet();
             int size = masterMap.size();
 
