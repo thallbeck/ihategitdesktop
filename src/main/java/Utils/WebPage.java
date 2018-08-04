@@ -823,8 +823,9 @@ public class WebPage extends Page {
 
                 writer.println( ":" );
                 writer.println( "" );
-                writer.println( "    def __init__(self, existing_page = null, login_type = logintype.DEFAULT, page = browser.Firefox):" );
-                writer.println( "        super(self).__init()" );
+                writer.println( "    def __init__(self, existing_page = None, login_type = logintype.DEFAULT, page = browser.Firefox):" );
+                writer.println( "        super(self).__init__()" );
+
                 writer.println( "" );
                 writer.println( "    def load(self):" );
                 writer.println( "        super(self).load()" );
