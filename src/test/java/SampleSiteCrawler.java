@@ -30,7 +30,7 @@ public class SampleSiteCrawler {
 
             startPage = new WebPage( null, LoginType.SAMPLE_CARBONBLACK, WebPage.Browser.Firefox );
             startPage.load();
-            startPage.DocumentAllHrefs( masterMap, 1, startingUrl, inclusionFilterArray );
+            startPage.DocumentAllHrefs( masterMap, 2, startingUrl, inclusionFilterArray );
             startPage.CreatePageClasses( masterMap, startingUrl, General.SOURCE_LANGUAGE.Java );
             startPage.CreatePageClasses( masterMap, startingUrl, General.SOURCE_LANGUAGE.Python );
             int size = masterMap.size();

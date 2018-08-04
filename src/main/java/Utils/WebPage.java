@@ -645,8 +645,14 @@ public class WebPage extends Page {
                 try {
                     String key = object.toString();
                     if ( (( HashMap ) map.get( key )).size() == 0 ) {
-                        get( key, 2000 );
-                        map.put( key, getAllHrefsOnAPage( startingUrl, inclusionFilter ) );
+                        get( key, 1000 );
+                        HashMap childMap = getAllHrefsOnAPage( startingUrl, inclusionFilter );
+
+                        // Remove any urls that are already at the top level of the master map
+                        removeDuplicateUrls( map, childMap );
+
+                        // Add all the unique urls to the top level for future duplicate checks
+                        map.put( key, childMap );
                         PowerPointUtil.saveScreenshot( this, key );
 
                         checkForDuplicateUris();
@@ -663,6 +669,20 @@ public class WebPage extends Page {
                     General.Debug( "getAllHrefsOnAPage(): Failed to load page (" + startingUrl + ")", true );
                 }
             }
+        }
+    }
+
+    private void removeDuplicateUrls( HashMap masterMap, HashMap childMap ) {
+        // replicate child map to avoid concurrency issues
+        HashMap dupeMap = new HashMap ( childMap );
+        Iterator worker = dupeMap.entrySet().iterator();
+        Map.Entry keyValuePair;
+
+        // iterate through the dupe map, remove from the child map
+        while ( worker.hasNext() ) {
+            keyValuePair = ( Map.Entry ) worker.next();
+            if ( masterMap.get( keyValuePair.getKey() ) != null )
+                childMap.remove( keyValuePair.getKey() );
         }
     }
 
