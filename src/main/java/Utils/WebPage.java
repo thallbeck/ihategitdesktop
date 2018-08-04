@@ -797,6 +797,7 @@ public class WebPage extends Page {
                 writer.println( "" );
                 writer.println( "import general" );
                 writer.println( "import logintype" );
+                writer.println( "import browser" );
                 writer.println( "import page" );
                 writer.println( "" );
                 break;
@@ -822,7 +823,7 @@ public class WebPage extends Page {
 
                 writer.println( ":" );
                 writer.println( "" );
-                writer.println( "    def __init__(self):" );
+                writer.println( "    def __init__(self, existing_page = null, login_type = logintype.DEFAULT, page = browser.Firefox):" );
                 writer.println( "        super(self).__init()" );
                 writer.println( "" );
                 writer.println( "    def load(self):" );
@@ -838,10 +839,16 @@ public class WebPage extends Page {
                     writer.println( " extends WebPage {" );
 
                 writer.println( "" );
-                writer.println( "    public " + className + "(WebPage existingPage) {" );
-                writer.println( "        super(existingPage);" );
+                writer.println( "    public " + className + "( WebPage existingPage ) {" );
+                writer.println( "        super( existingPage );" );
                 writer.println( "    }" );
 
+                writer.println( "" );
+                writer.println( "    public " + className + "() {" );
+                writer.println( "        super( null, LoginType.DEFAULT, WebPage.Browser.Firefox );" );
+                writer.println( "    }" );
+
+                //                new WebPage( null, LoginType.SAMPLE_CARBONBLACK, WebPage.Browser.Firefox );
                 break;
         }
     }

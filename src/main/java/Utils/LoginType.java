@@ -14,6 +14,17 @@ import java.util.TreeMap;
 
 public enum LoginType {
 
+    DEFAULT(
+        "",
+        Environment.Prod,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "https://www.google.com"
+    ),
+
     SAMPLE_MOVIEDB(
         "",
         Environment.Prod,
