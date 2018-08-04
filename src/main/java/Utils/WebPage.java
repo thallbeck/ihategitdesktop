@@ -634,18 +634,19 @@ public class WebPage extends Page {
 
     public void DocumentAllHrefs( HashMap map, int depth, String startingUrl, String[] inclusionFilter ) {
         driver.manage().timeouts().implicitlyWait( 2, TimeUnit.SECONDS );
-        driver.manage().timeouts().pageLoadTimeout( 6, TimeUnit.SECONDS );
-        driver.manage().timeouts().setScriptTimeout( 2, TimeUnit.SECONDS );
+        driver.manage().timeouts().pageLoadTimeout( 12, TimeUnit.SECONDS );
+        driver.manage().timeouts().setScriptTimeout( 3, TimeUnit.SECONDS );
 
         map.put( startingUrl, new HashMap() );
         for ( int counter = 1; counter <= depth; counter++ ) {
             General.Debug( "  ------ Starting page level " + counter + " ------" );
             Object[] array = map.keySet().toArray();
+
             for ( Object object : array ) {
                 try {
                     String key = object.toString();
                     if ( (( HashMap ) map.get( key )).size() == 0 ) {
-                        get( key, 1000 );
+                        get( key );
                         HashMap childMap = getAllHrefsOnAPage( startingUrl, inclusionFilter );
 
                         // Remove any urls that are already at the top level of the master map
