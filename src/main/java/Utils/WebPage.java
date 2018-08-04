@@ -848,6 +848,12 @@ public class WebPage extends Page {
                 writer.println( "        super( null, LoginType.DEFAULT, WebPage.Browser.Firefox );" );
                 writer.println( "    }" );
 
+                writer.println( "" );
+                writer.println( "    public " + className + " load() {" );
+                writer.println( "        super.load();" );
+                writer.println( "        return this;" );
+                writer.println( "    }" );
+
                 //                new WebPage( null, LoginType.SAMPLE_CARBONBLACK, WebPage.Browser.Firefox );
                 break;
         }
